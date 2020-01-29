@@ -308,8 +308,8 @@ sphinx_gallery_conf = {
         'org': 'nilearn',
         'repo': 'nilearn',
         'binderhub_url': 'https://mybinder.org',
-        'branch': 'master',
-        'dependencies': ['./binder/requirements.txt'],
+        'branch': 'doc/binder',
+        'dependencies': ['../binder/requirements.txt'],
         'notebooks_dir': 'examples',
         'use_jupyter_lab': True
     }
