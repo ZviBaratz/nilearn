@@ -5,20 +5,19 @@ graphical models.
 # Authors: Philippe Gervais
 # License: simplified BSD
 
-import warnings
 import collections.abc
-import operator
 import itertools
-
 import numpy as np
+import operator
 import scipy.linalg
+import warnings
+
 
 from joblib import Memory, delayed, Parallel
 from sklearn.base import BaseEstimator
 from sklearn.covariance import empirical_covariance
 from sklearn.model_selection import check_cv
 from sklearn.utils.extmath import fast_logdet
-
 from .._utils import CacheMixin
 from .._utils import logger
 from .._utils.extmath import is_spd
@@ -28,27 +27,27 @@ def compute_alpha_max(emp_covs, n_samples):
     """Compute the critical value of the regularization parameter.
 
     Above this value, the precisions matrices computed by
-    group_sparse_covariance are diagonal (complete sparsity)
+    group_sparse_covariance are diagonal (complete sparsity).
 
     This function also returns the value below which the precision
     matrices are fully dense (i.e. minimal number of zero coefficients).
 
     Parameters
     ----------
-    emp_covs : array-like, shape (n_features, n_features, n_subjects)
-        covariance matrix for each subject.
+    emp_covs : array-like
+        Covariance matrix for each subject shape *(n_features, n_features, n_subjects)*.
 
-    n_samples : array-like, shape (n_subjects,)
-        number of samples used in the computation of every covariance matrix.
-        n_samples.sum() can be arbitrary.
+    n_samples : array-like
+        Number of samples, shaped as shape *(n_subjects,)*, used in the computation of every
+        covariance matrix. `n_samples.sum()` can be arbitrary.
 
     Returns
     -------
-    alpha_max : float
+    alpha_max : :obj:`float`
         minimal value for the regularization parameter that gives a
         fully sparse matrix.
 
-    alpha_min : float
+    alpha_min : :obj:`float`
         minimal value for the regularization parameter that gives a fully
         dense matrix.
 
@@ -77,11 +76,11 @@ def compute_alpha_max(emp_covs, n_samples):
 def _update_submatrix(full, sub, sub_inv, p, h, v):
     """Update submatrix and its inverse.
 
-    sub_inv is the inverse of the submatrix of "full" obtained by removing
-    the p-th row and column.
+    `sub_inv` is the inverse of the submatrix of "full" obtained by removing
+    the *p*-th row and column.
 
-    sub_inv is modified in-place. After execution of this function, it contains
-    the inverse of the submatrix of "full" obtained by removing the n+1-th row
+    `sub_inv` is modified in-place. After execution of this function, it contains
+    the inverse of the submatrix of "full" obtained by removing the *n+1*-th row
     and column.
 
     This computation is based on the Sherman-Woodbury-Morrison identity.
@@ -117,7 +116,7 @@ def _update_submatrix(full, sub, sub_inv, p, h, v):
 
 
 def _assert_submatrix(full, sub, n):
-    """Check that "sub" is the matrix obtained by removing the p-th col and row
+    """Check that `sub` is the matrix obtained by removing the p-th col and row
     in "full". Used only for debugging.
     """
     true_sub = np.empty_like(sub)
@@ -144,26 +143,26 @@ def group_sparse_covariance(subjects, alpha, max_iter=50, tol=1e-3, verbose=0,
 
     Parameters
     ----------
-    subjects : list of numpy.ndarray
-        input subjects. Each subject is a 2D array, whose columns contain
+    subjects : list of :class:`numpy.ndarray`
+        Input subjects. Each subject is a 2D array, whose columns contain
         signals. Each array shape must be (sample number, feature number).
         The sample number can vary from subject to subject, but all subjects
         must have the same number of features (i.e. of columns).
 
-    alpha : float
-        regularization parameter. With normalized covariances matrices and
+    alpha : :obj:`float`
+        Regularization parameter. With normalized covariances matrices and
         number of samples, sensible values lie in the [0, 1] range(zero is
         no regularization: output is not sparse)
 
-    max_iter : int, optional
-        maximum number of iterations.
+    max_iter : :obj:`int`, optional
+        Maximum number of iterations.
 
-    tol : positive float or None, optional
+    tol : positive :obj:`float` or None, optional
         The tolerance to declare convergence: if the duality gap goes below
         this value, optimization is stopped. If None, no check is performed.
 
-    verbose : int, optional
-        verbosity level. Zero means "no message".
+    verbose : :obj:`int`, optional
+        Verbosity level. Zero means "no message".
 
     probe_function : callable or None
         This value is called before the first iteration and after each
@@ -180,21 +179,21 @@ def group_sparse_covariance(subjects, alpha, max_iter=50, tol=1e-3, verbose=0,
         - current value of precisions (ndarray).
         - previous value of precisions (ndarray). None before first iteration.
 
-    precisions_init: numpy.ndarray
-        initial value of the precision matrices. If not provided, a diagonal
+    precisions_init : :class:`numpy.ndarray`
+        Initial value of the precision matrices. If not provided, a diagonal
         matrix with the variances of each input signal is used.
 
-    debug : bool, optional
-        if True, perform checks during computation. It can help find
+    debug : :obj:`bool`, optional
+        If True, perform checks during computation. It can help find
         numerical problems, but increases computation time a lot.
 
     Returns
     -------
-    emp_covs : numpy.ndarray, shape (n_features, n_features, n_subjects)
-        empirical covariances matrices
+    emp_covs : :class:`numpy.ndarray`
+        Empirical covariances matrices with shape *(n_features, n_features, n_subjects)*.
 
-    precisions : numpy.ndarray, shape (n_features, n_features, n_subjects)
-        estimated precision matrices
+    precisions : :class:`numpy.ndarray`
+        Estimated precision matrices with shape *(n_features, n_features, n_subjects)*.
 
     Notes
     -----
@@ -451,37 +450,38 @@ class GroupSparseCovariance(BaseEstimator, CacheMixin):
 
     Parameters
     ----------
-    alpha : float
-        regularization parameter. With normalized covariances matrices and
+    alpha : :obj:`float`
+        Regularization parameter. With normalized covariances matrices and
         number of samples, sensible values lie in the [0, 1] range(zero is
         no regularization: output is not sparse)
 
-    tol : positive float, optional
+    tol : positive :obj:`float`, optional
         The tolerance to declare convergence: if the dual gap goes below
-        this value, iterations are stopped
+        this value, iterations are stopped.
 
-    max_iter : int, optional
-        maximum number of iterations. The default value (10) is rather
+    max_iter : :obj:`int`, optional
+        Maximum number of iterations. The default value (10) is rather
         conservative.
 
-    verbose : int, optional
-        verbosity level. Zero means "no message".
+    verbose : :obj:`int`, optional
+        Verbosity level. Zero means "no message".
 
-    memory : instance of joblib.Memory or string, optional
+    memory : :class:`joblib.Memory` or :obj:`str`, optional
         Used to cache the masking process.
         By default, no caching is done. If a string is given, it is the
         path to the caching directory.
 
-    memory_level : int, optional
+    memory_level : :obj:`int`, optional
         Caching aggressiveness. Higher values mean more caching.
 
     Attributes
     ----------
-    `covariances_` : numpy.ndarray, shape (n_features, n_features, n_subjects)
-        empirical covariance matrices.
+    `covariances_` : :class:`numpy.ndarray`
+        Empirical covariance matrices with shape *(n_features, n_features, n_subjects)*.
 
-    `precisions_` : numpy.ndarraye, shape (n_features, n_features, n_subjects)
-        precisions matrices estimated using the group-sparse algorithm.
+    `precisions_` : :class:`numpy.ndarray`
+        Precisions matrices with shape *(n_features, n_features, n_subjects)*
+        estimated using the group-sparse algorithm.
 
     Notes
     ------
@@ -515,14 +515,15 @@ class GroupSparseCovariance(BaseEstimator, CacheMixin):
 
         Parameters
         ----------
-        subjects : list of numpy.ndarray with shapes (n_samples, n_features)
-            input subjects. Each subject is a 2D array, whose columns contain
-            signals. Sample number can vary from subject to subject, but all
+        subjects : list of :class:`numpy.ndarray`
+            Input subjects. Each subject is a 2D array with shape
+            *(n_samples, n_features)*, whose columns contain signals.
+            Sample number can vary from subject to subject, but all
             subjects must have the same number of features (i.e. of columns).
 
         Returns
         -------
-        self : GroupSparseCovariance instance
+        self : GroupSparseCovariance
             the object itself. Useful for chaining operations.
         """
 
@@ -531,10 +532,13 @@ class GroupSparseCovariance(BaseEstimator, CacheMixin):
             subjects, assume_centered=False)
 
         logger.log("Computing precision matrices", verbose=self.verbose)
-        ret = self._cache(_group_sparse_covariance)(
-                self.covariances_, n_samples, self.alpha,
-                tol=self.tol, max_iter=self.max_iter,
-                verbose=max(0, self.verbose - 1), debug=False)
+        ret = self._cache(_group_sparse_covariance)(self.covariances_,
+                                                    n_samples,
+                                                    self.alpha,
+                                                    tol=self.tol,
+                                                    max_iter=self.max_iter,
+                                                    verbose=max(0, self.verbose - 1),
+                                                    debug=False)
 
         self.precisions_ = ret
         return self
@@ -545,26 +549,28 @@ def empirical_covariances(subjects, assume_centered=False, standardize=False):
 
     Parameters
     ----------
-    subjects : list of numpy.ndarray, shape for each (n_samples, n_features)
-        input subjects. Each subject is a 2D array, whose columns contain
+    subjects : list of :class:`numpy.ndarray`, shape for each (n_samples, n_features)
+        Input subjects. Each subject is a 2D array, whose columns contain
         signals. Sample number can vary from subject to subject, but all
         subjects must have the same number of features (i.e. of columns).
 
-    assume_centered : bool, optional
-        if True, assume that all input signals are centered. This slightly
+    assume_centered : :obj:`bool`, optional
+        If True, assume that all input signals are centered. This slightly
         decreases computation time by avoiding useless computation.
 
-    standardize : bool, optional
-        if True, set every signal variance to one before computing their
+    standardize : :obj:`bool`, optional
+        If True, set every signal variance to one before computing their
         covariance matrix (i.e. compute a correlation matrix).
 
     Returns
     -------
-    emp_covs : numpy.ndarray, shape : (feature number, feature number, subject number)
-        empirical covariances.
+    emp_covs : :class:`numpy.ndarray`
+        Empirical covariances with shape
+        *(feature number, feature number, subject number)*.
 
-    n_samples : numpy.ndarray, shape: (subject number,)
-        number of samples for each subject. dtype is np.float.
+    n_samples : :class:`numpy.ndarray`
+        Number of samples for each subject. dtype is np.float and
+        shape *(subject number,)*.
     """
     if not hasattr(subjects, "__iter__"):
         raise ValueError("'subjects' input argument must be an iterable. "
@@ -605,39 +611,39 @@ def group_sparse_scores(precisions, n_samples, emp_covs, alpha,
 
     Parameters
     ----------
-    precisions : numpy.ndarray, shape (n_features, n_features, n_subjects)
-        estimated precisions.
+    precisions : :class:`numpy.ndarray`
+        Estimated precisions with shape *(n_features, n_features, n_subjects)*.
 
-    n_samples : array-like, shape (n_subjects,)
-        number of samples used in estimating each subject in "precisions".
-        n_samples.sum() must be equal to 1.
+    n_samples : array-like
+        Number of samples used in estimating each subject in "precisions".
+        n_samples.sum() must be equal to 1. Shape: (n_subjects,)
 
-    emp_covs : numpy.ndarray, shape (n_features, n_features, n_subjects)
-        empirical covariance matrix
+    emp_covs : :class:`numpy.ndarray`
+        Empirical covariance matrix with shape *(n_features, n_features, n_subjects)*.
 
-    alpha : float
-        regularization parameter
+    alpha : :obj:`float`
+        Regularization parameter.
 
-    duality_gap : bool, optional
-        if True, also returns a duality gap upper bound.
+    duality_gap : :obj:`bool`, optional
+        If True, also returns a duality gap upper bound.
 
-    debug : bool, optional
-        if True, some consistency checks are performed to help solving
+    debug : :obj:`bool`, optional
+        If True, some consistency checks are performed to help solving
         numerical problems
 
     Returns
     -------
-    log_lik : float
-        log-likelihood of precisions on the given covariances. This is the
-        opposite of the loss function, without the regularization term
+    log_lik : :obj:`float`
+        Log-likelihood of precisions on the given covariances. This is the
+        opposite of the loss function, without the regularization term.
 
-    objective : float
-        value of objective function. This is the value minimized by
-        group_sparse_covariance()
+    objective : :obj:`float`
+        Value of objective function. This is the value minimized by
+        group_sparse_covariance().
 
-    duality_gap : float
-        duality gap upper bound. The returned bound is tight: it vanishes for
-        the optimal precision matrices
+    duality_gap : :obj:`float`
+        Duality gap upper bound. The returned bound is tight: it vanishes for
+        the optimal precision matrices.
     """
 
     n_features, _, n_subjects = emp_covs.shape
@@ -720,18 +726,18 @@ def group_sparse_covariance_path(train_subjs, alphas, test_subjs=None,
 
     Parameters
     ----------
-    train_subjs : list of numpy.ndarray
-        list of signals.
+    train_subjs : list of :class:`numpy.ndarray`
+        List of signals.
 
-    alphas : list of float
-         values of alpha to use. Best results for sorted values (decreasing)
+    alphas : list of :obj:`float`
+        Values of alpha to use. Best results for sorted values (decreasing)
 
-    test_subjs : list of numpy.ndarray
-        list of signals, independent from those in train_subjs, on which to
+    test_subjs : list of :class:`numpy.ndarray`
+        List of signals, independent from those in `train_subjs`, on which to
         compute a score. If None, no score is computed.
 
-    verbose : int
-        verbosity level
+    verbose : :obj:`int`
+        Verbosity level.
 
     tol, max_iter, debug, precisions_init :
         Passed to group_sparse_covariance(). See the corresponding docstring
@@ -754,12 +760,12 @@ def group_sparse_covariance_path(train_subjs, alphas, test_subjs=None,
 
     Returns
     -------
-    precisions_list : list of numpy.ndarray
-        estimated precisions for each value of alpha provided. The length of
+    precisions_list : list of :class:`numpy.ndarray`
+        Estimated precisions for each value of alpha provided. The length of
         this list is the same as that of parameter "alphas".
 
     scores : list of float
-        for each estimated precision, score obtained on the test set. Output
+        For each estimated precision, score obtained on the test set. Output
         only if test_subjs is not None.
     """
     train_covs, train_n_samples = empirical_covariances(
@@ -823,69 +829,71 @@ class GroupSparseCovarianceCV(BaseEstimator, CacheMixin):
 
     Parameters
     ----------
-    alphas : integer
-        initial number of points in the grid of regularization parameter
+    alphas : :obj:`integer`
+        Initial number of points in the grid of regularization parameter
         values. Each step of grid refinement adds that many points as well.
 
-    n_refinements : integer
-        number of times the initial grid should be refined.
+    n_refinements : :obj:`integer`
+        Number of times the initial grid should be refined.
 
-    cv : integer
-        number of folds in a K-fold cross-validation scheme. If None is passed,
+    cv : :obj:`integer`
+        Number of folds in a K-fold cross-validation scheme. If None is passed,
         defaults to 3.
 
-    tol_cv : float
-        tolerance used to get the optimal alpha value. It has the same meaning
+    tol_cv : :obj:`float`
+        Tolerance used to get the optimal alpha value. It has the same meaning
         as the `tol` parameter in :func:`group_sparse_covariance`.
 
-    max_iter_cv : integer
-        maximum number of iterations for each optimization, during the alpha-
+    max_iter_cv : :obj:`integer`
+        Maximum number of iterations for each optimization, during the alpha-
         selection phase.
 
-    tol : float
-        tolerance used during the final optimization for determining precision
+    tol : :obj:`float`
+        Tolerance used during the final optimization for determining precision
         matrices value.
 
-    max_iter : integer
-        maximum number of iterations in the final optimization.
+    max_iter : :obj:`integer`
+        Maximum number of iterations in the final optimization.
 
-    verbose : integer
-        verbosity level. 0 means nothing is printed to the user.
+    verbose : :obj:`integer`
+        Verbosity level. 0 means nothing is printed to the user.
 
-    n_jobs : integer
-        maximum number of cpu cores to use. The number of cores actually used
+    n_jobs : :obj:`integer`
+        Maximum number of cpu cores to use. The number of cores actually used
         at the same time cannot exceed the number of folds in folding strategy
         (that is, the value of cv).
 
-    debug : bool
-        if True, activates some internal checks for consistency. Only useful
+    debug : :obj:`bool`
+        If True, activates some internal checks for consistency. Only useful
         for nilearn developers, not users.
 
-    early_stopping : bool
-        if True, reduce computation time by using a heuristic to reduce the
+    early_stopping : :obj:`bool`
+        If True, reduce computation time by using a heuristic to reduce the
         number of iterations required to get the optimal value for alpha. Be
         aware that this can lead to slightly different values for the optimal
         alpha compared to early_stopping=False.
 
     Attributes
     ----------
-    `covariances_` : numpy.ndarray, shape (n_features, n_features, n_subjects)
-        covariance matrices, one per subject.
+    `covariances_` : :class:`numpy.ndarray`
+        Covariance matrices (one per subject) with shape shape
+        *(n_features, n_features, n_subjects)*.
 
-    `precisions_` : numpy.ndarray, shape (n_features, n_features, n_subjects)
-        precision matrices, one per subject. All matrices have the same
-        sparsity pattern (if a coefficient is zero for a given matrix, it
-        is also zero for every other.)
+    `precisions_` : :class:`numpy.ndarray`
+        Precision matrices (one per subject) with shape
+        *(n_features, n_features, n_subjects)*.
+        All matrices have the same sparsity pattern (if a coefficient is
+        zero for a given matrix, it is also zero for every other).
 
-    `alpha_` : float
-        penalization parameter value selected.
+    `alpha_` : :obj:`float`
+        Penalization parameter value selected.
 
-    `cv_alphas_` : list of floats
-        all values of the penalization parameter explored.
+    `cv_alphas_` : list of :obj:`float`
+        All values of the penalization parameter explored.
 
-    `cv_scores_` : numpy.ndarray, shape (n_alphas, n_folds)
-        scores obtained on test set for each value of the penalization
-        parameter explored.
+    `cv_scores_` : :class:`numpy.ndarray`
+        Scores with shape *(n_alphas, n_folds)* obtained on test set for each
+        value of the penalization parameter explored.
 
     See also
     --------
@@ -921,19 +929,19 @@ class GroupSparseCovarianceCV(BaseEstimator, CacheMixin):
 
         Parameters
         ----------
-        subjects : list of numpy.ndarray with shapes (n_samples, n_features)
-            input subjects. Each subject is a 2D array, whose columns contain
-            signals. Sample number can vary from subject to subject, but all
+        subjects : list of :class:`numpy.ndarray`
+            Input subjects. Each subject is a 2D array with shapes
+            *(n_samples, n_features)*, whose columns contain signals.
+            Sample number can vary from subject to subject, but all
             subjects must have the same number of features (i.e. of columns.)
 
         Returns
         -------
         self: GroupSparseCovarianceCV
-            the object instance itself.
+            The object instance itself.
         """
         # Empirical covariances
-        emp_covs, n_samples = \
-                  empirical_covariances(subjects, assume_centered=False)
+        emp_covs, n_samples = empirical_covariances(subjects, assume_centered=False)
         n_subjects = emp_covs.shape[2]
 
         # One cv generator per subject must be created, because each subject
@@ -941,10 +949,9 @@ class GroupSparseCovarianceCV(BaseEstimator, CacheMixin):
         cv = []
         for k in range(n_subjects):
             cv.append(check_cv(
-                    self.cv, np.ones(subjects[k].shape[0]),
-                    classifier=False
-                    ).split(subjects[k])
-                      )
+                      self.cv, np.ones(subjects[k].shape[0]),
+                      classifier=False
+                      ).split(subjects[k]))
         path = list()  # List of (alpha, scores, covs)
         n_alphas = self.alphas
 
