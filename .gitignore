@@ -28,6 +28,7 @@ nosetests_coverage/
 .ropeproject/
 tags
 examples/results/
+examples/**/*.pdf
 
 *.zip
 *.nt.bz2
