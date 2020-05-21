@@ -682,7 +682,11 @@ def iter_img(imgs):
 
     Returns
     -------
+<<<<<<< HEAD
     Iterator of 3D :class:`~nibabel.nifti1.Nifti1Image`
+=======
+    Iterator of 3D :class:`~nibabel.nifti1.Nifti1Image`s
+>>>>>>> origin/local_master
 
     See Also
     --------
