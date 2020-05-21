@@ -448,59 +448,63 @@ def _group_sparse_covariance(emp_covs, n_samples, alpha, max_iter=10, tol=1e-3,
 class GroupSparseCovariance(BaseEstimator, CacheMixin):
     """Covariance and precision matrix estimator.
 
-    Parameters
-    ----------
-    alpha : :obj:`float`
-        Regularization parameter. With normalized covariances matrices and
-        number of samples, sensible values lie in the [0, 1] range(zero is
-        no regularization: output is not sparse)
-
-    tol : positive :obj:`float`, optional
-        The tolerance to declare convergence: if the dual gap goes below
-        this value, iterations are stopped.
-
-    max_iter : :obj:`int`, optional
-        Maximum number of iterations. The default value (10) is rather
-        conservative.
-
-    verbose : :obj:`int`, optional
-        Verbosity level. Zero means "no message".
-
-    memory : :class:`joblib.Memory` or :obj:`str`, optional
-        Used to cache the masking process.
-        By default, no caching is done. If a string is given, it is the
-        path to the caching directory.
-
-    memory_level : :obj:`int`, optional
-        Caching aggressiveness. Higher values mean more caching.
-
-    Attributes
-    ----------
-    `covariances_` : :class:`numpy.ndarray`
-        Empirical covariance matrices with shape *(n_features, n_features, n_subjects)*.
-
-    `precisions_` : :class:`numpy.ndarray`
-        Precisions matrices with shape *(n_features, n_features, n_subjects)*
-        estimated using the group-sparse algorithm.
-
     Notes
-    ------
+    -----
 
-    The model used has been introduced in:
+    The model has been introduced in:
 
-    Gael Varoquaux, et al. `Brain Covariance Selection: Better Individual
+    *Gael Varoquaux, et al. `Brain Covariance Selection: Better Individual
     Functional Connectivity Models Using Population Prior
-    <http://arxiv.org/abs/1008.5071>`_'.
+    <http://arxiv.org/abs/1008.5071>`_'.*
 
     The algorithm used is based on what is described in:
 
-    Jean Honorio and Dimitris Samaras.
+    *Jean Honorio and Dimitris Samaras.
     "Simultaneous and Group-Sparse Multi-Task Learning of Gaussian Graphical
-    Models". http://arxiv.org/abs/1207.4255.
+    Models". http://arxiv.org/abs/1207.4255.*
+
+    Attributes
+    ----------
+
+    covariances_ : :class:`numpy.ndarray`
+        Empirical covariance matrices with shape *(n_features, n_features, n_subjects)*.
+
+    precisions_ : :class:`numpy.ndarray`
+        Precisions matrices with shape *(n_features, n_features, n_subjects)*
+        estimated using the group-sparse algorithm.
     """
 
     def __init__(self, alpha=0.1, tol=1e-3, max_iter=10, verbose=0,
                  memory=Memory(location=None), memory_level=0):
+        """Initialization of the :class:`~nilearn.connectome.GroupSparseCovariance`
+        class.
+
+        Parameters
+        ----------
+        alpha : :obj:`float`
+            Regularization parameter. With normalized covariances matrices and
+            number of samples, sensible values lie in the [0, 1] range(zero is
+            no regularization: output is not sparse)
+
+        tol : positive :obj:`float`, optional
+            The tolerance to declare convergence: if the dual gap goes below
+            this value, iterations are stopped.
+
+        max_iter : :obj:`int`, optional
+            Maximum number of iterations. The default value (10) is rather
+            conservative.
+
+        verbose : :obj:`int`, optional
+            Verbosity level. Zero means "no message".
+
+        memory : :class:`joblib.Memory` or :obj:`str`, optional
+            Used to cache the masking process.
+            By default, no caching is done. If a string is given, it is the
+            path to the caching directory.
+
+        memory_level : :obj:`int`, optional
+            Caching aggressiveness. Higher values mean more caching.
+        """
         self.alpha = alpha
         self.tol = tol
         self.max_iter = max_iter
@@ -523,8 +527,8 @@ class GroupSparseCovariance(BaseEstimator, CacheMixin):
 
         Returns
         -------
-        self : GroupSparseCovariance
-            the object itself. Useful for chaining operations.
+        self : :class:`~nilearn.connectome.GroupSparseCovariance`
+            The object itself. Useful for chaining operations.
         """
 
         logger.log("Computing covariance matrices", verbose=self.verbose)
@@ -829,14 +833,14 @@ class GroupSparseCovarianceCV(BaseEstimator, CacheMixin):
 
     Parameters
     ----------
-    alphas : :obj:`integer`
+    alphas : :obj:`int`
         Initial number of points in the grid of regularization parameter
         values. Each step of grid refinement adds that many points as well.
 
-    n_refinements : :obj:`integer`
+    n_refinements : :obj:`int`
         Number of times the initial grid should be refined.
 
-    cv : :obj:`integer`
+    cv : :obj:`int`
         Number of folds in a K-fold cross-validation scheme. If None is passed,
         defaults to 3.
 
@@ -844,7 +848,7 @@ class GroupSparseCovarianceCV(BaseEstimator, CacheMixin):
         Tolerance used to get the optimal alpha value. It has the same meaning
         as the `tol` parameter in :func:`group_sparse_covariance`.
 
-    max_iter_cv : :obj:`integer`
+    max_iter_cv : :obj:`int`
         Maximum number of iterations for each optimization, during the alpha-
         selection phase.
 
@@ -852,13 +856,13 @@ class GroupSparseCovarianceCV(BaseEstimator, CacheMixin):
         Tolerance used during the final optimization for determining precision
         matrices value.
 
-    max_iter : :obj:`integer`
+    max_iter : :obj:`int`
         Maximum number of iterations in the final optimization.
 
-    verbose : :obj:`integer`
+    verbose : :obj:`int`
         Verbosity level. 0 means nothing is printed to the user.
 
-    n_jobs : :obj:`integer`
+    n_jobs : :obj:`int`
         Maximum number of cpu cores to use. The number of cores actually used
         at the same time cannot exceed the number of folds in folding strategy
         (that is, the value of cv).
